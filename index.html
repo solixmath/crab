@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Call Example</title>
+  <script>
+    // Function to call Groq API
+    async function callGroqAPI() {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': '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' // Replace with your API key
+        },
+        body: JSON.stringify({
+          model: "llama3-8b-8192",
+          messages: [{
+            role: "user",
+            content: "Explain the importance of fast language models"
+          }]
+        })
+      });
+
+      const data = await response.json();
+      console.log(data); // Log the response to the console
+      document.getElementById('groqResponse').innerText = JSON.stringify(data, null, 2);
+    }
+
+    // Function to call your AI Chatbot API
+    async function callMathPunchAI() {
+      const response = await fetch('https://your-mathpunch-ai-url.com/api/chat', { // Replace with the URL of your AI chatbot
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: "Hello, Mathpunch AI!" // Example message, replace with actual interaction
+        })
+      });
+
+      const data = await response.json();
+      console.log(data); // Log the response to the console
+      document.getElementById('chatbotResponse').innerText = JSON.stringify(data, null, 2);
+    }
+  </script>
+</head>
+<body>
+  <h1>API Call Example</h1>
+  <button onclick="callGroqAPI()">Call Groq API</button>
+  <p>Groq API Response:</p>
+  <pre id="groqResponse"></pre>
+
+  <br><br>
+
+  <button onclick="callMathPunchAI()">Call Mathpunch AI Chatbot</button>
+  <p>Mathpunch AI Response:</p>
+  <pre id="chatbotResponse"></pre>
+</body>
+</html>
