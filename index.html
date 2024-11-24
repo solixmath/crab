@@ -16,6 +16,15 @@
 
         h1 {
             color: #ffffff; /* White color for heading */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #pcLogo {
+            width: 30px;
+            cursor: pointer;
         }
 
         #userInput {
@@ -46,36 +55,15 @@
 
         #responseOutput {
             width: 100%;
-            max-height: 80vh; /* Limit height to 80% of the viewport */
-            overflow-y: auto; /* Scroll vertically if needed */
+            height: auto;
+            white-space: nowrap;  /* Ensure no wrapping */
+            overflow-x: auto; /* Horizontal scroll */
+            margin-top: 20px;
             padding: 10px;
-            background-color: #333333;
+            background-color: #333333; /* Dark background for response area */
             border-radius: 5px;
-            border: 1px solid #444444;
-            box-sizing: border-box; /* Ensure padding doesn't affect the layout */
-            white-space: pre-wrap; /* Ensure newlines are preserved */
-            word-wrap: break-word; /* Prevent long words from breaking the layout */
-        }
-
-        /* Add responsiveness for smaller screens */
-        @media (max-width: 600px) {
-            #responseOutput {
-                max-height: 70vh; /* Make the output container shorter on small screens */
-            }
-
-            #userInput {
-                font-size: 14px; /* Make text smaller for better fit */
-            }
-        }
-
-        @media (max-width: 400px) {
-            #responseOutput {
-                max-height: 60vh; /* Further reduce height for very small screens */
-            }
-
-            #userInput {
-                font-size: 12px; /* Adjust text size further */
-            }
+            border: 1px solid #444444; /* Light border for output area */
+            display: flex;
         }
 
         /* Popup Style */
@@ -122,80 +110,84 @@
     <!-- Popup Message -->
     <div id="popup">
         <div id="popupMessage">
-            <p>Credits To Sunny’s Gym For Helping Me Make The Website</p>
+            <p>To manually scroll horizontally, use the left and right arrow keys on your keyboard.</p>
             <button id="closePopup">Close</button>
         </div>
     </div>
 
-    <h1>Mathpunch V2 AI Chatbot</h1>
+    <h1>
+        Mathpunch V2 AI Chatbot
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/PC_logo.svg/1200px-PC_logo.svg.png" id="pcLogo" alt="PC Logo">
+    </h1>
+
     <textarea id="userInput" placeholder="Ask the AI something..." rows="4" cols="50"></textarea><br><br>
     <button onclick="sendMessage()">Send Message</button>
-    <pre id="responseOutput"></pre>
+    <div id="responseOutput"></div>
 
     <script>
-      const API_KEY = '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'; // Your Groq API key
-      const API_URL = 'https://api.groq.com/openai/v1/chat/completions'; // Groq API endpoint
+        const API_KEY = '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'; // Your Groq API key
+        const API_URL = 'https://api.groq.com/openai/v1/chat/completions'; // Groq API endpoint
 
-      async function sendMessage() {
-          const userInput = document.getElementById('userInput').value;
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
 
-          if (!userInput) {
-              alert('Please enter a message!');
-              return;
-          }
+            if (!userInput) {
+                alert('Please enter a message!');
+                return;
+            }
 
-          const requestBody = {
-              model: 'llama3-8b-8192',
-              messages: [{
-                  role: 'user',
-                  content: userInput
-              }],
-              temperature: 1,
-              max_tokens: 1024,
-              top_p: 1,
-              stream: false // set to false for simplicity
-          };
+            const requestBody = {
+                model: 'llama3-8b-8192',
+                messages: [{
+                    role: 'user',
+                    content: userInput
+                }],
+                temperature: 1,
+                max_tokens: 1024,
+                top_p: 1,
+                stream: false // set to false for simplicity
+            };
 
-          console.log('Request Payload:', requestBody);  // Debugging the request payload
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}` // Authorization header
+                    },
+                    body: JSON.stringify(requestBody) // Convert the requestBody to JSON
+                });
 
-          try {
-              const response = await fetch(API_URL, {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${API_KEY}` // Authorization header
-                  },
-                  body: JSON.stringify(requestBody) // Convert the requestBody to JSON
-              });
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
 
-              if (!response.ok) {
-                  throw new Error(`Error: ${response.statusText}`);
-              }
+                const data = await response.json(); // Parse the response
+                const message = data?.choices?.[0]?.message?.content || 'No response from AI';  // Extract AI response
 
-              const data = await response.json(); // Parse the response
+                // Display the AI response
+                const responseDiv = document.getElementById('responseOutput');
+                const responseMessage = document.createElement('div');
+                responseMessage.textContent = message;
+                responseDiv.appendChild(responseMessage);
 
-              console.log('Response Data:', data);  // Debugging the response
-              const message = data?.choices?.[0]?.message?.content || 'No response from AI';  // Extract AI response
+                // Auto-scroll horizontally
+                responseDiv.scrollLeft = responseDiv.scrollWidth;
+            } catch (error) {
+                console.error('API request failed:', error);
+                document.getElementById('responseOutput').textContent = `Error: ${error.message}`; // Display error
+            }
+        }
 
-              // Append response with a new line
-              const responseOutput = document.getElementById('responseOutput');
-              responseOutput.textContent += message + "\n";  
-              responseOutput.scrollTop = responseOutput.scrollHeight; // Auto-scroll to the bottom
-          } catch (error) {
-              console.error('API request failed:', error);
-              document.getElementById('responseOutput').textContent = `Error: ${error.message}`; // Display error
-          }
-      }
+        // Show popup when clicking the PC logo
+        document.getElementById('pcLogo').onclick = () => {
+            document.getElementById('popup').style.visibility = 'visible';
+        };
 
-      // Show popup when the page loads
-      window.onload = () => {
-          document.getElementById('popup').style.visibility = 'visible';
-      };
-
-      // Close the popup
-      document.getElementById('closePopup').onclick = () => {
-          document.getElementById('popup').style.visibility = 'hidden';
-      };
+        // Close the popup
+        document.getElementById('closePopup').onclick = () => {
+            document.getElementById('popup').style.visibility = 'hidden';
+        };
     </script>
 </body>
 </html>
