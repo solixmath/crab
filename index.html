@@ -159,6 +159,9 @@
 
               document.getElementById('responseOutput').textContent += message + "\n";  // Append new response to the output
               document.getElementById('responseOutput').scrollTop = document.getElementById('responseOutput').scrollHeight; // Auto-scroll to the bottom
+
+              // Clear the input field after sending the message
+              document.getElementById('userInput').value = '';
           } catch (error) {
               console.error('API request failed:', error);
               document.getElementById('responseOutput').textContent = `Error: ${error.message}`; // Display error
