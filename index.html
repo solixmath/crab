@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8"> <!-- Increased zoom out -->
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no"> <!-- Adjusted scale for all devices -->
     <title>Mathpunch V2 AI Chatbot</title>
     <style>
         body {
@@ -14,7 +14,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             height: 100vh;
             overflow: hidden;
         }
@@ -34,7 +34,7 @@
             justify-content: flex-end;
             width: 90%;
             max-width: 600px;
-            height: 70%;
+            height: 60%; /* Ensured it fits better on smaller screens */
             background-color: #222;
             border-radius: 10px;
             overflow-y: auto;
@@ -94,6 +94,22 @@
             outline: none;
         }
 
+        /* Responsive Design Fixes */
+        @media (max-width: 600px) {
+            .chat-container {
+                height: 50%; /* Adjust for smaller screens */
+            }
+
+            #userInput {
+                font-size: 14px; /* Reduce font size for better readability */
+                padding: 12px;
+            }
+
+            #submitButton {
+                padding: 12px;
+                font-size: 14px; /* Adjust button size for mobile */
+            }
+        }
     </style>
 </head>
 <body>
