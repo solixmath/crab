@@ -53,6 +53,8 @@
             border-radius: 5px;
             border: 1px solid #444444;
             box-sizing: border-box; /* Ensure padding doesn't affect the layout */
+            white-space: pre-wrap; /* Ensure newlines are preserved */
+            word-wrap: break-word; /* Prevent long words from breaking the layout */
         }
 
         /* Add responsiveness for smaller screens */
@@ -175,8 +177,10 @@
               console.log('Response Data:', data);  // Debugging the response
               const message = data?.choices?.[0]?.message?.content || 'No response from AI';  // Extract AI response
 
-              document.getElementById('responseOutput').textContent += message + "\n";  // Append new response to the output
-              document.getElementById('responseOutput').scrollTop = document.getElementById('responseOutput').scrollHeight; // Auto-scroll to the bottom
+              // Append response with a new line
+              const responseOutput = document.getElementById('responseOutput');
+              responseOutput.textContent += message + "\n";  
+              responseOutput.scrollTop = responseOutput.scrollHeight; // Auto-scroll to the bottom
           } catch (error) {
               console.error('API request failed:', error);
               document.getElementById('responseOutput').textContent = `Error: ${error.message}`; // Display error
