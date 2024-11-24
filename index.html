@@ -15,9 +15,7 @@
         }
 
         h1 {
-            color: #ffffff; /* White color for heading */
-            text-align: center;
-            margin-bottom: 20px;
+            color: #ffffff;
         }
 
         #userInput {
@@ -25,9 +23,9 @@
             padding: 10px;
             font-size: 16px;
             margin-bottom: 10px;
-            background-color: #333333; /* Dark input field */
-            color: white; /* White text in input */
-            border: 1px solid #444444; /* Light border for input field */
+            background-color: #333333;
+            color: white;
+            border: 1px solid #444444;
             border-radius: 5px;
         }
 
@@ -35,47 +33,61 @@
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
-            background-color: #ffffff; /* White button */
-            color: #121212; /* Dark text on button */
+            background-color: #ffffff;
+            color: #121212;
             border: none;
             border-radius: 5px;
             transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #f0f0f0; /* Light gray on hover */
+            background-color: #f0f0f0;
         }
 
         #responseOutput {
             width: 100%;
-            height: 300px; /* Fixed height for scrollable area */
-            overflow-y: auto; /* Vertical scroll */
+            height: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 80vh;
+            overflow-y: auto;
             margin-top: 20px;
             padding: 10px;
-            background-color: #333333; /* Dark background for response area */
+            background-color: #333333;
             border-radius: 5px;
-            border: 1px solid #444444; /* Light border for output area */
+            border: 1px solid #444444;
+            line-height: 1.6; /* Spaced like a book */
         }
 
-        .response {
-            margin-bottom: 10px; /* Space between responses */
-            padding: 10px;
-            background-color: #222222; /* Slightly lighter background for responses */
+        .jump-to-latest {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #ffffff;
+            color: #121212;
+            border: none;
             border-radius: 5px;
-            word-wrap: break-word; /* Ensure long words wrap */
+            padding: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            display: none; /* Hidden initially */
+        }
+
+        .jump-to-latest:hover {
+            background-color: #f0f0f0;
         }
     </style>
 </head>
 <body>
     <h1>Mathpunch V2 AI Chatbot</h1>
-
     <textarea id="userInput" placeholder="Ask the AI something..." rows="4" cols="50"></textarea><br><br>
     <button onclick="sendMessage()">Send Message</button>
-    <div id="responseOutput"></div>
+    <pre id="responseOutput"></pre>
+    <button class="jump-to-latest" id="jumpToLatest" onclick="scrollToLatest()">Jump to Latest</button>
 
     <script>
         const API_KEY = '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'; // Your Groq API key
-        const API_URL = 'https://api.groq.com/openai/v1/chat/completions'; // Groq API endpoint
+        const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
         async function sendMessage() {
             const userInput = document.getElementById('userInput').value;
@@ -94,7 +106,7 @@
                 temperature: 1,
                 max_tokens: 1024,
                 top_p: 1,
-                stream: false // set to false for simplicity
+                stream: false
             };
 
             try {
@@ -102,38 +114,32 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}` // Authorization header
+                        'Authorization': `Bearer ${API_KEY}`
                     },
-                    body: JSON.stringify(requestBody) // Convert the requestBody to JSON
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (!response.ok) {
                     throw new Error(`Error: ${response.statusText}`);
                 }
 
-                const data = await response.json(); // Parse the response
-                const message = data?.choices?.[0]?.message?.content || 'No response from AI';  // Extract AI response
+                const data = await response.json();
+                const message = data?.choices?.[0]?.message?.content || 'No response from AI';
 
-                // Display the AI response
-                const responseDiv = document.getElementById('responseOutput');
-                const responseMessage = document.createElement('div');
-                responseMessage.textContent = message;
-                responseMessage.className = 'response'; // Add response styling
-                responseDiv.appendChild(responseMessage);
+                const responseOutput = document.getElementById('responseOutput');
+                responseOutput.textContent += message + "\n\n"; // Append response with spacing
 
-                // Auto-scroll to the bottom
-                responseDiv.scrollTop = responseDiv.scrollHeight;
+                // Show the "Jump to Latest" button when content grows
+                document.getElementById('jumpToLatest').style.display = "block";
             } catch (error) {
                 console.error('API request failed:', error);
-                const responseDiv = document.getElementById('responseOutput');
-                const errorMessage = document.createElement('div');
-                errorMessage.textContent = `Error: ${error.message}`;
-                errorMessage.className = 'response';
-                responseDiv.appendChild(errorMessage);
-
-                // Auto-scroll to the bottom
-                responseDiv.scrollTop = responseDiv.scrollHeight;
+                document.getElementById('responseOutput').textContent = `Error: ${error.message}`;
             }
+        }
+
+        function scrollToLatest() {
+            const responseOutput = document.getElementById('responseOutput');
+            responseOutput.scrollTop = responseOutput.scrollHeight; // Scroll to the bottom
         }
     </script>
 </body>
