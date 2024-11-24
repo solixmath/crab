@@ -116,6 +116,8 @@
       const API_KEY = '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'; // Your Groq API key
       const API_URL = 'https://api.groq.com/openai/v1/chat/completions'; // Groq API endpoint
 
+      let conversationHistory = []; // To keep track of the conversation
+
       async function sendMessage() {
           const userInput = document.getElementById('userInput').value;
 
@@ -124,12 +126,12 @@
               return;
           }
 
+          // Add user input to conversation history
+          conversationHistory.push({ role: 'user', content: userInput });
+
           const requestBody = {
               model: 'llama3-8b-8192',
-              messages: [{
-                  role: 'user',
-                  content: userInput
-              }],
+              messages: conversationHistory, // Include the whole conversation history
               temperature: 1,
               max_tokens: 1024,
               top_p: 1,
@@ -157,15 +159,23 @@
               console.log('Response Data:', data);  // Debugging the response
               const message = data?.choices?.[0]?.message?.content || 'No response from AI';  // Extract AI response
 
-              document.getElementById('responseOutput').textContent += message + "\n";  // Append new response to the output
-              document.getElementById('responseOutput').scrollTop = document.getElementById('responseOutput').scrollHeight; // Auto-scroll to the bottom
+              // Add AI's response to conversation history
+              conversationHistory.push({ role: 'assistant', content: message });
 
-              // Clear the input field after sending the message
-              document.getElementById('userInput').value = '';
+              // Display both the user input and AI response
+              updateResponseOutput(userInput, message);
+
+              document.getElementById('userInput').value = ''; // Clear input field
+              document.getElementById('responseOutput').scrollTop = document.getElementById('responseOutput').scrollHeight; // Auto-scroll to the bottom
           } catch (error) {
               console.error('API request failed:', error);
               document.getElementById('responseOutput').textContent = `Error: ${error.message}`; // Display error
           }
+      }
+
+      function updateResponseOutput(userMessage, aiMessage) {
+          const outputArea = document.getElementById('responseOutput');
+          outputArea.textContent += `User: ${userMessage}\nAI: ${aiMessage}\n\n`;
       }
 
       // Show popup when the page loads
