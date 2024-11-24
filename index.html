@@ -6,85 +6,95 @@
     <title>Mathpunch V2 AI Chatbot</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #121212; /* Dark background */
-            color: white; /* White text */
+            font-family: 'Arial', sans-serif;
+            background-color: #1c1c1c;
+            color: #fff;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            overflow: hidden; /* Prevent scrolling */
         }
 
         .container {
             display: flex;
             flex-direction: column;
+            justify-content: flex-start;
             align-items: center;
-            justify-content: center;
             height: 100vh;
-            padding: 10px;
+            padding: 20px;
         }
 
         h1 {
+            font-size: 36px;
             margin-bottom: 20px;
+            color: #00bfff; /* Futuristic cyan color */
+            text-shadow: 0px 0px 10px rgba(0, 255, 255, 0.8);
+        }
+
+        #chatContainer {
+            width: 100%;
+            max-width: 700px;
+            height: 70%;
+            background-color: #111;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 2px solid #00bfff; /* Border with futuristic cyan */
+        }
+
+        .message {
+            margin-bottom: 10px;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .user {
+            color: #00bfff; /* Light blue color for user messages */
+            text-shadow: 0px 0px 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .ai {
+            color: #00ff7f; /* Greenish color for AI responses */
+            text-shadow: 0px 0px 10px rgba(0, 255, 127, 0.6);
         }
 
         #userInput {
             width: 100%;
             max-width: 600px;
-            padding: 10px;
+            padding: 12px;
             font-size: 16px;
-            background-color: #333333; /* Dark input field */
-            color: white; /* White text in input */
-            border: 1px solid #444444; /* Light border for input field */
+            background-color: #333;
+            border: 1px solid #444;
             border-radius: 10px;
-            margin-bottom: 10px;
+            color: white;
+            margin-bottom: 15px;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 12px 25px;
             font-size: 16px;
             cursor: pointer;
-            background-color: #ffffff; /* White button */
-            color: #121212; /* Dark text on button */
+            background-color: #00bfff;
+            color: #121212;
             border: none;
-            border-radius: 10px; /* Rounded edges */
-            transition: background-color 0.3s ease;
+            border-radius: 10px;
+            transition: all 0.3s ease;
         }
 
         button:hover {
-            background-color: #f0f0f0; /* Light gray on hover */
+            background-color: #00ffff; /* Light cyan hover effect */
         }
 
-        #chatContainer {
-            width: 100%;
-            max-width: 600px;
-            height: 60%;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 10px;
-            background-color: #1a1a1a; /* Darker background for chat container */
-            border-radius: 10px;
-            border: 1px solid #444444;
-            margin-bottom: 20px;
-        }
-
-        .message {
-            margin-bottom: 10px;
-            line-height: 1.5;
-        }
-
-        .user {
-            color: #00bfff; /* Light blue for user messages */
-        }
-
-        .ai {
-            color: #00ff7f; /* Light green for AI responses */
-        }
-
-        /* Prevent zoom on iOS */
+        /* Prevent zooming on mobile */
         input, textarea {
             -webkit-appearance: none;
             font-size: 16px;
+        }
+
+        /* Dark mode message */
+        .dark-mode {
+            background-color: #333;
+            color: white;
         }
     </style>
 </head>
@@ -92,7 +102,7 @@
     <div class="container">
         <h1>Mathpunch V2 AI Chatbot</h1>
         <div id="chatContainer"></div>
-        <textarea id="userInput" placeholder="Type your message here..."></textarea>
+        <textarea id="userInput" placeholder="Type your message..."></textarea>
         <button onclick="sendMessage()">Send</button>
     </div>
 
