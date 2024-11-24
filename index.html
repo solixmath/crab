@@ -116,6 +116,7 @@
       const API_KEY = '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'; // Your Groq API key
       const API_URL = 'https://api.groq.com/openai/v1/chat/completions'; // Groq API endpoint
 
+      let conversationHistory = []; // Track the entire conversation history
       let isAutoScrolling = true; // Flag to track whether auto-scrolling is enabled
 
       async function sendMessage() {
@@ -126,12 +127,12 @@
               return;
           }
 
+          // Add the user's message to the conversation history
+          conversationHistory.push({ role: 'user', content: userInput });
+
           const requestBody = {
               model: 'llama3-8b-8192',
-              messages: [{
-                  role: 'user',
-                  content: userInput
-              }],
+              messages: conversationHistory, // Send the entire conversation history
               temperature: 1,
               max_tokens: 1024,
               top_p: 1,
@@ -159,7 +160,10 @@
               console.log('Response Data:', data);  // Debugging the response
               const message = data?.choices?.[0]?.message?.content || 'No response from AI';  // Extract AI response
 
-              document.getElementById('responseOutput').textContent = message;  // Clear previous responses and display the new one
+              // Add the AI's response to the conversation history
+              conversationHistory.push({ role: 'assistant', content: message });
+
+              displayConversation(); // Update the conversation display
 
               // Auto-scroll to the bottom of the response container if enabled
               if (isAutoScrolling) {
@@ -171,6 +175,17 @@
               console.error('API request failed:', error);
               document.getElementById('responseOutput').textContent = `Error: ${error.message}`; // Display error
           }
+      }
+
+      // Display the entire conversation
+      function displayConversation() {
+          const responseOutput = document.getElementById('responseOutput');
+          responseOutput.textContent = ''; // Clear previous content
+
+          // Add each message in the conversation history to the output area
+          conversationHistory.forEach(msg => {
+              responseOutput.textContent += `${msg.role === 'user' ? 'You' : 'AI'}: ${msg.content}\n\n`;
+          });
       }
 
       // Detect when the user is scrolling up and disable auto-scrolling
