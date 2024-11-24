@@ -46,16 +46,16 @@
 
         #responseOutput {
             width: 100%;
-            height: auto;
+            min-height: 100px; /* Ensure the area has a minimum height */
             white-space: pre-wrap;  /* Ensure new lines are respected */
             word-wrap: break-word;  /* Ensure long words don't overflow */
-            max-height: 80vh; /* Limit height to 80% of viewport */
-            overflow-y: auto; /* Scroll vertically if needed */
             margin-top: 20px;
             padding: 10px;
             background-color: #333333; /* Dark background for response area */
             border-radius: 5px;
             border: 1px solid #444444; /* Light border for output area */
+            overflow-y: auto; /* Enable scrolling when the content overflows */
+            max-height: 400px; /* Limit the height for better readability */
         }
 
         /* Popup Style */
@@ -116,7 +116,7 @@
       const API_KEY = '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'; // Your Groq API key
       const API_URL = 'https://api.groq.com/openai/v1/chat/completions'; // Groq API endpoint
 
-      let conversationHistory = []; // To keep track of the conversation
+      let isAutoScrolling = true; // Flag to track whether auto-scrolling is enabled
 
       async function sendMessage() {
           const userInput = document.getElementById('userInput').value;
@@ -126,12 +126,12 @@
               return;
           }
 
-          // Add user input to conversation history
-          conversationHistory.push({ role: 'user', content: userInput });
-
           const requestBody = {
               model: 'llama3-8b-8192',
-              messages: conversationHistory, // Include the whole conversation history
+              messages: [{
+                  role: 'user',
+                  content: userInput
+              }],
               temperature: 1,
               max_tokens: 1024,
               top_p: 1,
@@ -159,24 +159,32 @@
               console.log('Response Data:', data);  // Debugging the response
               const message = data?.choices?.[0]?.message?.content || 'No response from AI';  // Extract AI response
 
-              // Add AI's response to conversation history
-              conversationHistory.push({ role: 'assistant', content: message });
+              document.getElementById('responseOutput').textContent = message;  // Clear previous responses and display the new one
 
-              // Display both the user input and AI response
-              updateResponseOutput(userInput, message);
+              // Auto-scroll to the bottom of the response container if enabled
+              if (isAutoScrolling) {
+                  const responseOutput = document.getElementById('responseOutput');
+                  responseOutput.scrollTop = responseOutput.scrollHeight;
+              }
 
-              document.getElementById('userInput').value = ''; // Clear input field
-              document.getElementById('responseOutput').scrollTop = document.getElementById('responseOutput').scrollHeight; // Auto-scroll to the bottom
           } catch (error) {
               console.error('API request failed:', error);
               document.getElementById('responseOutput').textContent = `Error: ${error.message}`; // Display error
           }
       }
 
-      function updateResponseOutput(userMessage, aiMessage) {
-          const outputArea = document.getElementById('responseOutput');
-          outputArea.textContent += `User: ${userMessage}\nAI: ${aiMessage}\n\n`;
-      }
+      // Detect when the user is scrolling up and disable auto-scrolling
+      document.getElementById('responseOutput').addEventListener('scroll', function() {
+          const responseOutput = document.getElementById('responseOutput');
+          const isScrolledToBottom = responseOutput.scrollHeight - responseOutput.scrollTop === responseOutput.clientHeight;
+
+          // If the user scrolls up, disable auto-scrolling
+          if (!isScrolledToBottom) {
+              isAutoScrolling = false;
+          } else {
+              isAutoScrolling = true; // Re-enable auto-scrolling when they scroll back to the bottom
+          }
+      });
 
       // Show popup when the page loads
       window.onload = () => {
