@@ -124,12 +124,13 @@
             background-color: #e02a2a;
         }
 
-        .button-row {
+        /* New: Button row above the title */
+        .top-button-row {
             display: flex;
-            gap: 10px;
+            justify-content: center;
             width: 100%;
-            max-width: 800px;
-            margin-bottom: 10px;
+            margin-bottom: 32px; /* 2 spaces (approx) */
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -142,11 +143,11 @@
     </div>
 
     <div class="container">
-        <h1>mathpunch AI</h1>
-        <div id="chatContainer"></div>
-        <div class="button-row">
+        <div class="top-button-row">
             <button onclick="resetChat()">Reset AI</button>
         </div>
+        <h1>mathpunch AI</h1>
+        <div id="chatContainer"></div>
         <textarea id="userInput" placeholder="Type your message here..."></textarea>
         <button onclick="sendMessage()">Send</button>
     </div>
