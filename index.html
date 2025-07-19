@@ -74,7 +74,7 @@
             padding: 12px 25px;
             font-size: 18px;
             cursor: pointer;
-            background-color: #bb1818; /* Changed to requested red color */
+            background-color: #bb1818;
             color: white;
             border: none;
             border-radius: 12px;
@@ -82,7 +82,7 @@
         }
 
         button:hover {
-            background-color: #e02a2a; /* Slightly lighter red on hover */
+            background-color: #e02a2a;
         }
 
         /* Popup styling */
@@ -112,7 +112,7 @@
         }
 
         #popup button {
-            background-color: #bb1818; /* Red for popup button */
+            background-color: #bb1818;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -121,7 +121,15 @@
         }
 
         #popup button:hover {
-            background-color: #e02a2a; /* Lighter red on hover */
+            background-color: #e02a2a;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -136,6 +144,9 @@
     <div class="container">
         <h1>mathpunch AI</h1>
         <div id="chatContainer"></div>
+        <div class="button-row">
+            <button onclick="resetChat()">Reset AI</button>
+        </div>
         <textarea id="userInput" placeholder="Type your message here..."></textarea>
         <button onclick="sendMessage()">Send</button>
     </div>
@@ -144,17 +155,46 @@
         // Function to show the popup on page load
         window.onload = function() {
             document.getElementById('popup').style.display = 'flex';
+            loadMessages();
         };
 
         function closePopup() {
             document.getElementById('popup').style.display = 'none';
         }
 
-        const API_KEY = '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'; // Your API Key
-        const API_URL = 'https://api.groq.com/openai/v1/chat/completions'; // API Endpoint
+        // LocalStorage keys
+        const STORAGE_KEY = 'mathpunch_ai_chat';
 
+        // Get UI elements
         const chatContainer = document.getElementById('chatContainer');
         const userInput = document.getElementById('userInput');
+
+        // Load chat history from localStorage
+        function loadMessages() {
+            chatContainer.innerHTML = '';
+            const chatHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            chatHistory.forEach(entry => appendMessage(entry.message, entry.sender, false));
+            // Always scroll to bottom on load
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Save message to localStorage
+        function saveMessage(message, sender) {
+            const chatHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            chatHistory.push({ message, sender });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
+        }
+
+        // Clear chat history
+        function resetChat() {
+            if (confirm('Are you sure you want to reset the AI and clear the conversation?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                chatContainer.innerHTML = '';
+            }
+        }
+
+        const API_KEY = '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';
+        const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
         async function sendMessage() {
             const userMessage = userInput.value.trim();
@@ -164,12 +204,22 @@
                 return;
             }
 
-            // Display user message
+            // Display user message and save
             appendMessage(userMessage, 'user');
+            saveMessage(userMessage, 'user');
+
+            // Get previous chat as message history for context
+            const chatHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            // Prepare messages for API, up to last 10 exchanges for brevity
+            const messages = chatHistory
+                .map(entry => ({ role: entry.sender === 'user' ? 'user' : 'assistant', content: entry.message }))
+                .slice(-10);
+
+            messages.push({ role: 'user', content: userMessage });
 
             const requestBody = {
                 model: 'llama3-8b-8192',
-                messages: [{ role: 'user', content: userMessage }],
+                messages: messages,
                 temperature: 1,
                 max_tokens: 1024,
                 top_p: 1,
@@ -191,25 +241,40 @@
                 }
 
                 const data = await response.json();
-                const aiMessage =
-                    data?.choices?.[0]?.message?.content || 'No response from AI';
+                const aiMessage = data?.choices?.[0]?.message?.content || 'No response from AI';
                 appendMessage(aiMessage, 'ai');
+                saveMessage(aiMessage, 'ai');
             } catch (error) {
                 console.error('API request failed:', error);
                 appendMessage(`Error: ${error.message}`, 'ai');
+                saveMessage(`Error: ${error.message}`, 'ai');
             }
 
             userInput.value = '';
         }
 
-        function appendMessage(message, sender) {
+        // Append message to chat container
+        function appendMessage(message, sender, save = false) {
             const messageElement = document.createElement('div');
             messageElement.className = `message ${sender}`;
             messageElement.textContent = message;
-
             chatContainer.appendChild(messageElement);
             chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll
+
+            // Optionally save (used for loading history)
+            if (save) {
+                saveMessage(message, sender);
+            }
         }
+
+        // Allow pressing Enter/Shift+Enter for sending message/newline
+        userInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
     </script>
 </body>
 </html>
